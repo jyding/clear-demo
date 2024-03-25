@@ -1,0 +1,40 @@
+name: CI with Semgrep
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Semgrep
+        run: |
+          curl -L https://semgrep.dev/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Run Semgrep
+        run: |
+          semgrep --config your-config.yaml .
+
+  build:
+    runs-on: ubuntu-latest
+
+    needs: semgrep
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build -t your_image_name .
+
+      - name: Run Docker image
+        run: docker run your_image_name
